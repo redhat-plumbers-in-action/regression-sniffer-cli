@@ -159,7 +159,7 @@ export class Jira {
           id: '11694',
           name: 'Red Hat Engineering Authorized',
         },
-        customfield_12311140: {
+        [this.fields.epic]: {
           value: epic,
         },
       },
