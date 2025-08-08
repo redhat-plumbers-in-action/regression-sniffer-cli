@@ -2,8 +2,8 @@
 
 [![npm version][npm-status]][npm] [![Tests][test-status]][test] [![Linters][lint-status]][lint] [![CodeQL][codeql-status]][codeql] [![codecov][codecov-status]][codecov]
 
-[npm]: https://www.npmjs.com/package/regression-sniffer-cli
-[npm-status]: https://img.shields.io/npm/v/regression-sniffer-cli
+[npm]: https://www.npmjs.com/package/regression-sniffer
+[npm-status]: https://img.shields.io/npm/v/regression-sniffer
 
 [test]: https://github.com/redhat-plumbers-in-action/regression-sniffer-cli/actions/workflows/tests.yml
 [test-status]: https://github.com/redhat-plumbers-in-action/regression-sniffer-cli/actions/workflows/tests.yml/badge.svg
