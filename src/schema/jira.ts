@@ -4,7 +4,7 @@ export const externalLinkSchema = z
   .object({
     object: z.object({
       title: z.string(),
-      url: z.url(),
+      url: z.string(),
     }),
   })
   .transform(link => ({
@@ -44,7 +44,7 @@ const filterValues = (links: ExternalLink[], type: ExternalLink['type']) => {
 export const jiraIssueSchema = z
   .object({
     key: z.string(),
-    url: z.url(),
+    url: z.string(),
     type: z.string(),
     status: z.string(),
     statusCategory: z.string(),

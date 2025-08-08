@@ -108,6 +108,7 @@ export class Jira {
       this.logger.log(`Description: ${chalk.italic(description)}`);
       this.logger.log(`Labels: ${chalk.yellow(labels.join(', '))}`);
       this.logger.log(`Version: ${chalk.green(version)}`);
+      this.logger.log(`Epic: ${chalk.cyan(epic)}`);
       this.logger.log(chalk.dim('External links:'));
       this.logger.log(
         `[backport] - ${dbEntry.message.split('\n')[0]} - ${chalk.blue(dbEntry.url)}`
@@ -159,9 +160,7 @@ export class Jira {
           id: '11694',
           name: 'Red Hat Engineering Authorized',
         },
-        [this.fields.epic]: {
-          value: epic,
-        },
+        [this.fields.epic]: epic,
       },
     });
 
