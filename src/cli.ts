@@ -138,7 +138,7 @@ const runProgram = async () => {
   const dbFilePath = path.join(
     os.homedir(),
     '.config',
-    'regression-sniffer-cli',
+    'regression-sniffer',
     `${options.component}.json`
   );
 
