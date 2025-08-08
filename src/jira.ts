@@ -14,6 +14,7 @@ import chalk from 'chalk';
 export class Jira {
   readonly api: Version2Client;
   readonly fields = {
+    severity: 'customfield_12316142',
     epic: 'customfield_12311140',
   };
 
@@ -149,6 +150,10 @@ export class Jira {
         issuetype: {
           name: 'Bug',
         },
+        // set severity to "Low"
+        [this.fields.severity]: {
+          id: '26753',
+        },
         labels: labels,
         components: [
           {
@@ -242,7 +247,7 @@ export class Jira {
     });
   }
 
-  async transitionIssue(issue: string, status: 'New' | 'In Progress') {
+  async transitionIssue(issue: string, status: 'In Progress') {
     if (this.dry) {
       this.logger.log(
         `Would transition issue ${chalk.blue(issue)} to ${chalk.yellow(status)}`
