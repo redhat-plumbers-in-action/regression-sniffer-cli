@@ -168,7 +168,7 @@ export class Jira {
       issue.key,
       'backport',
       dbEntry.message.split('\n')[0],
-      dbEntry.sha
+      dbEntry.url
     );
 
     for (const cherryPick of dbEntry.cherryPicks) {
