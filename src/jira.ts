@@ -253,7 +253,7 @@ export class Jira {
     await this.api.issues.doTransition({
       issueIdOrKey: issue,
       transition: {
-        name: status,
+        id: '111',
       },
     });
   }
