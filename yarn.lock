@@ -1055,14 +1055,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.8.4":
-  version: 1.10.0
-  resolution: "axios@npm:1.10.0"
+"axios@npm:^1.10.0":
+  version: 1.11.0
+  resolution: "axios@npm:1.11.0"
   dependencies:
     follow-redirects: "npm:^1.15.6"
-    form-data: "npm:^4.0.0"
+    form-data: "npm:^4.0.4"
     proxy-from-env: "npm:^1.1.0"
-  checksum: 10c0/2239cb269cc789eac22f5d1aabd58e1a83f8f364c92c2caa97b6f5cbb4ab2903d2e557d9dc670b5813e9bcdebfb149e783fb8ab3e45098635cd2f559b06bd5d8
+  checksum: 10c0/5de273d33d43058610e4d252f0963cc4f10714da0bfe872e8ef2cbc23c2c999acc300fd357b6bce0fc84a2ca9bd45740fa6bb28199ce2c1266c8b1a393f2b36e
   languageName: node
   linkType: hard
 
@@ -1605,7 +1605,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"form-data@npm:^4.0.0":
+"form-data@npm:^4.0.4":
   version: 4.0.4
   resolution: "form-data@npm:4.0.4"
   dependencies:
@@ -1615,13 +1615,6 @@ __metadata:
     hasown: "npm:^2.0.2"
     mime-types: "npm:^2.1.12"
   checksum: 10c0/373525a9a034b9d57073e55eab79e501a714ffac02e7a9b01be1c820780652b16e4101819785e1e18f8d98f0aee866cc654d660a435c378e16a72f2e7cac9695
-  languageName: node
-  linkType: hard
-
-"formdata-node@npm:^6.0.3":
-  version: 6.0.3
-  resolution: "formdata-node@npm:6.0.3"
-  checksum: 10c0/9b8ada280c7b0c7314bed57fd50b3562f8825bd3ede6f6231b1bc7683b649e7f3ffb7b0f13d8e9e6cae8042ea21eaf497a7c676d2fe6dc63daefefaea4838240
   languageName: node
   linkType: hard
 
@@ -1934,15 +1927,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jira.js@npm:^4.1.3":
-  version: 4.1.3
-  resolution: "jira.js@npm:4.1.3"
+"jira.js@npm:^5.2.2":
+  version: 5.2.2
+  resolution: "jira.js@npm:5.2.2"
   dependencies:
-    axios: "npm:^1.8.4"
-    formdata-node: "npm:^6.0.3"
+    axios: "npm:^1.10.0"
     mime: "npm:^4.0.7"
-    tslib: "npm:^2.8.1"
-  checksum: 10c0/470909e1cdc8f919f23dd1238e8c540193ac92b1a59f9f6efab78495d6b878b1591103e5584dde86bc04bc24c4de2cca4d9b41e337268acf1e298d1c4aca5d0f
+    zod: "npm:^3.25.76"
+  checksum: 10c0/de88759e7735859763f6b88ea9f345d9f79905e806f12cbb6f127afd52898698b6baa4959071e800e3961a0d0a417188d4994f84cd4d6bc38a53d83a0bf7fae4
   languageName: node
   linkType: hard
 
@@ -2381,7 +2373,7 @@ __metadata:
     commander: "npm:^14.0.0"
     dotenv: "npm:^17.2.0"
     esbuild: "npm:^0.25.8"
-    jira.js: "npm:^4.1.3"
+    jira.js: "npm:^5.2.2"
     prettier: "npm:3.6.2"
     typescript: "npm:5.9.2"
     vitest: "npm:3.2.4"
@@ -2728,13 +2720,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.8.1":
-  version: 2.8.1
-  resolution: "tslib@npm:2.8.1"
-  checksum: 10c0/9c4759110a19c53f992d9aae23aac5ced636e99887b51b9e61def52611732872ff7668757d4e4c61f19691e36f4da981cd9485e869b4a7408d689f6bf1f14e62
-  languageName: node
-  linkType: hard
-
 "tunnel@npm:^0.0.6":
   version: 0.0.6
   resolution: "tunnel@npm:0.0.6"
@@ -2996,5 +2981,12 @@ __metadata:
   version: 4.0.5
   resolution: "zod@npm:4.0.5"
   checksum: 10c0/59449d731ca63849b6bcb14300aa6e2f042d440b3ed294b45c248519aec78780f85a5d1939a62c2ce82e9dc60afca77c8005e0a98d7517b0c2586d6c76940424
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.25.76":
+  version: 3.25.76
+  resolution: "zod@npm:3.25.76"
+  checksum: 10c0/5718ec35e3c40b600316c5b4c5e4976f7fee68151bc8f8d90ec18a469be9571f072e1bbaace10f1e85cf8892ea12d90821b200e980ab46916a6166a4260a983c
   languageName: node
   linkType: hard
