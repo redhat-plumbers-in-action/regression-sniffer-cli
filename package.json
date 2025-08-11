@@ -1,6 +1,6 @@
 {
   "name": "regression-sniffer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Loyal CLI tool that sniffs out any follow-up and revert commit of your cherry-picked commit",
   "main": "src/main.ts",
   "bin": "./dist/main.js",

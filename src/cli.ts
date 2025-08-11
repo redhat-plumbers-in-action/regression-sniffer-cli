@@ -20,7 +20,7 @@ export function cli(): Command {
     .description(
       '🔍 A CLI tool that searches for follow-up and revert commits in upstream projects and creates Jira issues to track them.'
     )
-    .version('1.0.0');
+    .version('1.0.1');
 
   program
     .requiredOption(
