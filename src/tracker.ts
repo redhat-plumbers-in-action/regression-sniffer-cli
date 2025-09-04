@@ -26,14 +26,4 @@ export class Tracker {
   ) {
     await this.api.createExternalLink(this.data.id, type, title, url);
   }
-
-  // async transferToInProgress() {
-  //   await this.api.updateIssue(this.data.id, {
-  //     fields: {
-  //       status: {
-  //         name: 'In Progress',
-  //       },
-  //     },
-  //   });
-  // }
 }

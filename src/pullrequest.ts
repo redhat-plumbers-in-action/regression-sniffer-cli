@@ -23,12 +23,8 @@ export class PullRequest {
     return this.data.labels.some(label => label.name === name);
   }
 
-  isFollowUpWaived(followUp: string) {
-    if (this.waived && this.wasFollowUpReported(followUp)) {
-      return true;
-    }
-
-    return false;
+  isFollowUpWaived(followUp: string): boolean {
+    return this.waived && this.wasFollowUpReported(followUp);
   }
 
   async getCommentWithFollowUps() {
@@ -48,17 +44,38 @@ export class PullRequest {
     return this.data.body?.match(regex)?.[1];
   }
 
-  async getIssueComment(commentID: string) {
-    const { data } = await this.octokit.request(
-      'GET /repos/{owner}/{repo}/issues/comments/{comment_id}',
-      {
-        owner: this.owner,
-        repo: this.repo,
-        comment_id: +commentID,
-      }
-    );
+  async getIssueComment(
+    commentID: string,
+    retries = 3
+  ): Promise<string | undefined> {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const { data } = await this.octokit.request(
+          'GET /repos/{owner}/{repo}/issues/comments/{comment_id}',
+          {
+            owner: this.owner,
+            repo: this.repo,
+            comment_id: +commentID,
+          }
+        );
 
-    return data?.body;
+        return data?.body;
+      } catch (error) {
+        if (attempt < retries) {
+          const delay = 1000 * 2 ** (attempt - 1);
+          console.error(
+            `Failed to fetch comment ${commentID} (attempt ${attempt}/${retries}), retrying in ${delay}ms...`
+          );
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          console.error(
+            `Failed to fetch comment ${commentID} after ${retries} attempts:`,
+            error
+          );
+          return undefined;
+        }
+      }
+    }
   }
 
   wasFollowUpReported(followUp: string) {
@@ -94,6 +111,7 @@ export class PullRequest {
         )
       ).data;
     } catch (error) {
+      console.error(error);
       return undefined;
     }
 

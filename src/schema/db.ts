@@ -10,8 +10,8 @@ export const followUpSchema = z.object({
 
 export const revertSchema = followUpSchema;
 
-export type followUpDb = z.infer<typeof followUpSchema>;
-export type revertDb = z.infer<typeof revertSchema>;
+export type FollowUpDb = z.infer<typeof followUpSchema>;
+export type RevertDb = z.infer<typeof revertSchema>;
 
 export const trackerSchema = z.object({
   id: z.string(),
@@ -21,9 +21,10 @@ export const trackerSchema = z.object({
   statusCategory: z.string(),
   versions: z.array(z.string()),
   summary: z.string(),
+  clonedFrom: z.string().optional(),
 });
 
-export type trackerDb = z.infer<typeof trackerSchema>;
+export type TrackerDb = z.infer<typeof trackerSchema>;
 
 export const prSchema = z.object({
   number: z.number(),
@@ -31,7 +32,7 @@ export const prSchema = z.object({
   waived: z.boolean().optional(),
 });
 
-export type prDb = z.infer<typeof prSchema>;
+export type PrDb = z.infer<typeof prSchema>;
 
 export const commitSchema = z.object({
   sha: z.string(),
