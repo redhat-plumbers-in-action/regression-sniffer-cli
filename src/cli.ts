@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import chalk from 'chalk';
 
 import path from 'node:path';
 import os from 'node:os';
@@ -45,12 +46,18 @@ export function cli(): Command {
     )
     .option(
       '-f, --from <from>',
-      'upstream version(tag) from which to start searching for backported commits'
+      'upstream version(tag) from which to start searching for backported commits',
+      getDefaultValue('FROM')
     )
     .option(
       '-u, --upstream <upstream>',
       'GitHub upstream org/repo',
       getDefaultValue('UPSTREAM')
+    )
+    .requiredOption(
+      '-l, --login <email>',
+      'Jira login email',
+      getDefaultValue('LOGIN')
     )
     .option(
       '-L, --label <label>',
@@ -77,7 +84,8 @@ const runProgram = async () => {
 
   const jiraToken = process.env.JIRA_API_TOKEN ?? tokenUnavailable('jira');
   const jira = new Jira(
-    'https://issues.redhat.com',
+    'https://redhat.atlassian.net',
+    options.login,
     jiraToken,
     options.dry,
     logger
@@ -102,9 +110,25 @@ const runProgram = async () => {
   const downstreamRepo = Stream.getOwnerRepo(options.downstream);
   const downstream = new Stream(downstreamRepo, logger);
 
-  let reportedFollowUps: Commit[] = reportedFollowUpIssues.map(commit => {
-    return Commit.fromJiraIssue(commit, upstream.git);
-  });
+  const reportedFollowUps: Commit[] = (() => {
+    const all = reportedFollowUpIssues.map(issue =>
+      Commit.fromJiraIssue(issue, upstream.git)
+    );
+
+    const bySha = new Map<string, Commit>();
+    for (const commit of all) {
+      const existing = bySha.get(commit.sha);
+      if (
+        !existing ||
+        (existing.tracker?.statusCategory === 'Done' &&
+          commit.tracker?.statusCategory !== 'Done')
+      ) {
+        bySha.set(commit.sha, commit);
+      }
+    }
+
+    return Array.from(bySha.values());
+  })();
 
   // ---------------------------
 
@@ -156,7 +180,19 @@ const runProgram = async () => {
 
   logger.log(downstream.getBackportedCommits(upstream.git, options.from));
 
+  //! Don't report merge commits, we don't care about them!!!
   downstream.removeAlreadyBackported();
+
+  const stats = {
+    issuesOpened: 0,
+    issuesCloned: 0,
+    issuesSkippedClosed: 0,
+    issuesSkippedWaived: 0,
+    newFollowUps: 0,
+    newReverts: 0,
+  };
+
+  const dbCommitIndex = new Map(db.commits.map(c => [c.sha, c]));
 
   for (const commit of downstream.commits) {
     if (
@@ -171,63 +207,99 @@ const runProgram = async () => {
 
       await commit.pr?.getCommentWithFollowUps();
 
-      const dbEntry = db.commits.find(entry => entry.sha === commit.sha);
+      const dbEntry = dbCommitIndex.get(commit.sha);
 
       if (dbEntry) {
-        for (const followUp of commit.followUps) {
-          for (const dbFollowup of dbEntry.followUps) {
-            if (followUp.sha !== dbFollowup.sha) {
-              dbEntry.followUps.push({
-                sha: followUp.sha,
-                message: followUp.message,
-                url: followUp.url,
-                waived: commit.pr?.isFollowUpWaived(followUp.sha) ?? false,
-              });
+        const knownFollowUps = new Set(dbEntry.followUps.map(f => f.sha));
+        const knownReverts = new Set(dbEntry.reverts.map(r => r.sha));
 
-              if (dbEntry.tracker) {
-                if (dbEntry.tracker.statusCategory === 'Done') {
-                  await jira.transitionIssue(dbEntry.tracker.id, 'In Progress');
-                  dbEntry.tracker.status = 'In Progress';
-                  dbEntry.tracker.statusCategory = 'To Do';
-                }
-                await jira.createExternalLink(
-                  dbEntry.tracker.id,
-                  'follow-up',
-                  followUp.message,
-                  followUp.url
-                );
-              }
-              break;
-            }
+        const hasNewFollowUps = commit.followUps.some(
+          f => !knownFollowUps.has(f.sha)
+        );
+        const hasNewReverts = commit.reverts.some(
+          r => !knownReverts.has(r.sha)
+        );
+
+        if (
+          dbEntry.tracker?.statusCategory === 'Done' &&
+          !hasNewFollowUps &&
+          !hasNewReverts
+        ) {
+          logger.log(
+            `Skipping ${commit.sha} - tracker ${dbEntry.tracker.id} is already closed and has no new follow-ups`
+          );
+          stats.issuesSkippedClosed++;
+          continue;
+        }
+
+        if (
+          dbEntry.tracker?.statusCategory === 'Done' &&
+          (hasNewFollowUps || hasNewReverts)
+        ) {
+          const originalIssueId = dbEntry.tracker.id;
+          logger.log(
+            `Cloning ${originalIssueId} - new follow-ups found for resolved tracker`
+          );
+
+          const clonedKey = await jira.cloneIssue(
+            originalIssueId,
+            options.release
+          );
+
+          if (clonedKey) {
+            await jira.recreateRemoteLinks(clonedKey, dbEntry);
+
+            const clonedTracker = await jira.getIssueTracker(clonedKey);
+            clonedTracker.clonedFrom = originalIssueId;
+            dbEntry.tracker = clonedTracker;
+            stats.issuesCloned++;
+          } else {
+            logger.log(`Failed to clone ${originalIssueId}, skipping`);
+            continue;
+          }
+        }
+
+        for (const followUp of commit.followUps) {
+          if (knownFollowUps.has(followUp.sha)) continue;
+
+          dbEntry.followUps.push({
+            sha: followUp.sha,
+            message: followUp.message,
+            url: followUp.url,
+            waived: commit.pr?.isFollowUpWaived(followUp.sha) ?? false,
+          });
+
+          stats.newFollowUps++;
+
+          if (dbEntry.tracker) {
+            await jira.createExternalLink(
+              dbEntry.tracker.id,
+              'follow-up',
+              followUp.message,
+              followUp.url
+            );
           }
         }
 
         for (const revert of commit.reverts) {
-          for (const dbRevert of dbEntry.reverts) {
-            if (revert.sha !== dbRevert.sha) {
-              dbEntry.reverts.push({
-                sha: revert.sha,
-                message: revert.message,
-                url: revert.url,
-                waived: commit.pr?.isFollowUpWaived(revert.sha) ?? false,
-              });
+          if (knownReverts.has(revert.sha)) continue;
 
-              if (dbEntry.tracker) {
-                if (dbEntry.tracker.statusCategory === 'Done') {
-                  await jira.transitionIssue(dbEntry.tracker.id, 'In Progress');
-                  dbEntry.tracker.status = 'In Progress';
-                  dbEntry.tracker.statusCategory = 'To Do';
-                }
-                await jira.createExternalLink(
-                  dbEntry.tracker.id,
-                  'revert',
-                  revert.message,
-                  revert.url
-                );
-              }
+          dbEntry.reverts.push({
+            sha: revert.sha,
+            message: revert.message,
+            url: revert.url,
+            waived: commit.pr?.isFollowUpWaived(revert.sha) ?? false,
+          });
 
-              break;
-            }
+          stats.newReverts++;
+
+          if (dbEntry.tracker) {
+            await jira.createExternalLink(
+              dbEntry.tracker.id,
+              'revert',
+              revert.message,
+              revert.url
+            );
           }
         }
 
@@ -261,19 +333,64 @@ const runProgram = async () => {
             : undefined,
         });
 
+        const newDbEntry = db.commits[db.commits.length - 1];
+        dbCommitIndex.set(newDbEntry.sha, newDbEntry);
+
+        stats.newFollowUps += newDbEntry.followUps.filter(
+          f => !f.waived && !f.backported
+        ).length;
+        stats.newReverts += newDbEntry.reverts.filter(
+          r => !r.waived && !r.backported
+        ).length;
+
+        if (
+          newDbEntry.followUps.every(
+            followUp => followUp.waived || followUp.backported
+          ) &&
+          newDbEntry.reverts.every(revert => revert.waived || revert.backported)
+        ) {
+          logger.log(
+            `Skipping issue creation for ${commit.sha} because all follow-ups and reverts were waived or already backported`
+          );
+          stats.issuesSkippedWaived++;
+          continue;
+        }
+
         const tracker = await jira.createIssue(
           options.release,
           options.component,
           options.epic,
-          db.commits[db.commits.length - 1]
+          newDbEntry
         );
 
-        db.commits[db.commits.length - 1].tracker = tracker;
+        newDbEntry.tracker = tracker;
+        stats.issuesOpened++;
       }
     }
   }
 
   db.show();
+
+  // Print run statistics
+  logger.log(`\n${'─'.repeat(60)}`);
+  logger.log(`📊 Run Statistics`);
+  logger.log(`${'─'.repeat(60)}`);
+  logger.log(
+    `  New follow-ups discovered:  ${chalk.yellow(String(stats.newFollowUps))}`
+  );
+  logger.log(
+    `  New reverts discovered:     ${chalk.red(String(stats.newReverts))}`
+  );
+  logger.log(
+    `  Issues opened:              ${chalk.green(String(stats.issuesOpened))}`
+  );
+  logger.log(
+    `  Issues cloned:              ${chalk.cyan(String(stats.issuesCloned))}`
+  );
+  logger.log(
+    `  Skipped Issues (waived/backported):${chalk.gray(` ${stats.issuesSkippedWaived}`)}`
+  );
+  logger.log(`${'─'.repeat(60)}\n`);
 
   try {
     logger.log(`💾 Writing to ${dbFilePath}`);

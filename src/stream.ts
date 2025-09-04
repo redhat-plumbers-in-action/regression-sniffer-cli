@@ -52,15 +52,14 @@ export class Stream {
     // Start progress bar
     progressBar.start(this.backportedCommits.length, 0);
 
-    this.backportedCommits.forEach((sha, index) => {
+    for (const [index, sha] of this.backportedCommits.entries()) {
       const commitMessage = this.git.getCommitMessage(sha);
       this.commits.push(
         new Commit(sha, this.git.getCommitUrl(sha), commitMessage, upstreamGit)
       );
 
-      // Update progress bar
       progressBar.update(index + 1);
-    });
+    }
 
     // Stop progress bar
     progressBar.stop();
@@ -68,9 +67,9 @@ export class Stream {
   }
 
   removeAlreadyBackported() {
-    this.commits.forEach(commit => {
+    for (const commit of this.commits) {
       commit.checkBackportedCommits(this.commits);
-    });
+    }
   }
 
   static getOwnerRepo(name: string): Repo;

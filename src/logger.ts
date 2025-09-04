@@ -1,9 +1,10 @@
 export class Logger {
-  static readonly colorRegex = /\[\d+m/gm;
+  // Matches full ANSI escape sequences: ESC[ followed by params and a terminator
+  static readonly colorRegex = /\x1b\[\d+(;\d+)*m/g;
 
   constructor(readonly noColor: boolean = false) {}
 
-  log(message: string | undefined | void): void {
+  log(message?: string): void {
     if (!message) {
       return;
     }

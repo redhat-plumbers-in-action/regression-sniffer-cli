@@ -1,4 +1,4 @@
-import { warning, info } from '@actions/core';
+import { info, warning } from '@actions/core';
 import { execSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 
@@ -39,8 +39,7 @@ export class Git {
     const regex = filter.join('|').replaceAll('%{sha}%', sha);
 
     // Get all commit SHAs that matches provided regex
-    const gitLog = `git -C ${this.repoDir} --no-pager log --pretty=format:"%H" --regexp-ignore-case --perl-regexp --grep "${regex}" ${from ? `${from}...HEAD` : ''}`;
-    // info(`${gitLog}`);
+    const gitLog = `git -C ${this.repoDir} --no-pager log --no-merges --pretty=format:"%H" --regexp-ignore-case --perl-regexp --grep "${regex}" ${from ? `${from}...HEAD` : ''}`;
 
     let stdout = '';
     try {
@@ -58,7 +57,6 @@ export class Git {
   getCommitMessage(sha: string): string {
     // Get single commit message for provided SHA
     const gitShow = `git -C ${this.repoDir} --no-pager show --no-patch --pretty=format:"%B" ${sha}`;
-    // info(`${gitShow}`);
 
     let stdout = '';
     try {
@@ -67,7 +65,6 @@ export class Git {
       warning(`Unable to git show commit message - stderr: '${error}'`);
     }
 
-    // When no commits are found, stdout will be an empty string. We want to return an empty array in this case
     return stdout;
   }
 
@@ -77,7 +74,6 @@ export class Git {
 
   removeClone() {
     const remove = `rm -rf ${this.repoDir}`;
-    // info(remove);
 
     execSync(remove, {
       stdio: [0, 1, 2], // we need this so node will print the command output

@@ -21,19 +21,23 @@ export class Database {
   }
 
   show(): void {
-    this.commits.forEach(commit => {
+    for (const commit of this.commits) {
+      const cherryPickUrls = commit.cherryPicks
+        .map(cp => chalk.magenta(cp.url))
+        .join('\n');
+      const followUpUrls = commit.followUps
+        ?.map(f => chalk.yellow(f.url))
+        .join('\n');
+      const revertUrls = commit.reverts?.map(r => chalk.red(r.url)).join('\n');
+
       this.logger.log(
-        `Commit: ${chalk.blue(commit.url)} - ${commit.cherryPicks.map(cherryPick => chalk.magenta(cherryPick.url)).join('\n') || ''}`
+        `Commit: ${chalk.blue(commit.url)}${cherryPickUrls ? ` - ${cherryPickUrls}` : ''}`
       );
       this.logger.log(`PR: ${chalk.green(commit.pr?.url)}`);
-      this.logger.log(
-        `${commit.followUps?.map(followUp => chalk.yellow(followUp.url)).join('\n') || ''}`
-      );
-      this.logger.log(
-        `${commit.reverts?.map(revert => chalk.red(revert.url)).join('\n') || ''}`
-      );
+      if (followUpUrls) this.logger.log(followUpUrls);
+      if (revertUrls) this.logger.log(revertUrls);
       this.logger.log();
-    });
+    }
   }
 
   writeToFile(filePath: string): void {
