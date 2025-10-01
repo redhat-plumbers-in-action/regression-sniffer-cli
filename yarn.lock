@@ -855,12 +855,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:24.0.13":
-  version: 24.0.13
-  resolution: "@types/node@npm:24.0.13"
+"@types/node@npm:24.6.1":
+  version: 24.6.1
+  resolution: "@types/node@npm:24.6.1"
   dependencies:
-    undici-types: "npm:~7.8.0"
-  checksum: 10c0/e1f3d4ea8973b1f2f987814ac5343d05ad8b56bf7fa41755295dee0ce0f7b4e2de4f3daef5296429180228970cef0d70f2ad873c61dbafc6f5eeca9d023aba76
+    undici-types: "npm:~7.13.0"
+  checksum: 10c0/f2f8aea441d72139345cfa2e392af51bc27d12eb5f74b9b4d202046a2e82ab70d6da89c46a2ac7feea98854c2919e53070869d4af9d448e173a77249fcb7bca3
   languageName: node
   linkType: hard
 
@@ -2366,7 +2366,7 @@ __metadata:
     "@octokit/types": "npm:^14.1.0"
     "@total-typescript/ts-reset": "npm:0.6.1"
     "@types/cli-progress": "npm:^3.11.6"
-    "@types/node": "npm:24.0.13"
+    "@types/node": "npm:24.6.1"
     "@vitest/coverage-v8": "npm:3.2.4"
     chalk: "npm:^5.4.1"
     cli-progress: "npm:^3.12.0"
@@ -2744,6 +2744,13 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10c0/34d2a8e23eb8e0d1875072064d5e1d9c102e0bdce56a10a25c0b917b8aa9001a9cf5c225df12497e99da107dc379360bc138163c66b55b95f5b105b50578067e
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~7.13.0":
+  version: 7.13.0
+  resolution: "undici-types@npm:7.13.0"
+  checksum: 10c0/44bbb0935425291351bfd8039571f017295b5d6dc5727045d0a4fea8c6ffe73a6703b48ce010f9cb539b9041a75b463f8cfe1e7309cab7486452505fb0d66151
   languageName: node
   linkType: hard
 
