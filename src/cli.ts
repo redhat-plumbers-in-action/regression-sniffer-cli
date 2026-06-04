@@ -180,7 +180,6 @@ const runProgram = async () => {
 
   logger.log(downstream.getBackportedCommits(upstream.git, options.from));
 
-  //! Don't report merge commits, we don't care about them!!!
   downstream.removeAlreadyBackported();
 
   const stats = {
