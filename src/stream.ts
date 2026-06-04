@@ -27,7 +27,7 @@ export class Stream {
     );
   }
 
-  getBackportedCommits(upstreamGit: Git, from: string): void | string {
+  getBackportedCommits(upstreamGit: Git, from: string): string | undefined {
     // Create progress bar
     const progressBar = new cliProgress.SingleBar({
       format:
