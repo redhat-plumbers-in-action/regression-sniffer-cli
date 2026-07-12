@@ -43,7 +43,7 @@
   "devDependencies": {
     "@total-typescript/ts-reset": "0.6.1",
     "@types/cli-progress": "^3.11.6",
-    "@types/node": "25.9.1",
+    "@types/node": "25.9.5",
     "@vitest/coverage-v8": "4.1.8",
     "esbuild": "^0.28.0",
     "prettier": "3.8.3",
